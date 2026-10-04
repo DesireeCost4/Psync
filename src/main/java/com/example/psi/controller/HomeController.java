@@ -63,4 +63,32 @@ public class HomeController {
         return "home";
     }
 
+    @GetMapping("/clientes")
+    public String listarClientes(@RequestParam(name = "buscar", required = false) String buscar,
+                                 @RequestParam(name = "segmento", defaultValue = "PSICOLOGIA") String segmentoParam,
+                                 Model model) {
+
+        // 1. Recuperar o segmento ativo para renderizar as variáveis da home.html
+        SeguimentoTipo segmentoAtivo = obterSegmento(segmentoParam);
+
+        // 2. ID do ADM logado (mock)
+        Long admLogadoId = 1L;
+
+        // 3. Buscar os dados filtrados ou completos via Service
+        List<ClienteFinal> listaDeClientes = clienteFinalService.buscarPorNome(buscar);
+
+        // 4. Injeta os dados no Model exigidos pela view home.html
+        model.addAttribute("clientes", listaDeClientes);
+        model.addAttribute("termoBuscado", buscar);
+        model.addAttribute("segmento", segmentoAtivo);
+        model.addAttribute("totalClientes", listaDeClientes.size());
+        model.addAttribute("proximosAtendimentos", 0);
+        model.addAttribute("mensalidadesPendentes", "R$ 0,00");
+        model.addAttribute("planoNome", "Plano Profissional");
+        model.addAttribute("planoVencimento", "15/10/2026");
+
+        // 5. Retorna o template 'home' onde está a tabela
+        return "home";
+    }
+
 }

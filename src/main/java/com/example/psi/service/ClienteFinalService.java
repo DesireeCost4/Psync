@@ -33,4 +33,17 @@ public class ClienteFinalService {
     public void deletar(Long id) {
         clienteFinalRepository.deleteById(id);
     }
+
+    public List<ClienteFinal> buscarPorNome(String nome) {
+
+        // Se o termo for nulo ou composto apenas por espaços (blank)
+            if (nome == null || nome.isBlank()) {
+
+                return clienteFinalRepository.findAll();
+
+            }
+
+            return clienteFinalRepository.findByDadosCadastroNomeContainingIgnoreCase(nome.trim());
+
+    }
 }

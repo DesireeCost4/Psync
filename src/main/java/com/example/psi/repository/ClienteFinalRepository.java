@@ -11,4 +11,6 @@ public interface ClienteFinalRepository extends JpaRepository<ClienteFinal, Long
 
     // Busca todos os clientes finais pertencentes a um determinado ADM/Segmento
     List<ClienteFinal> findByClienteAdmId(Long clienteAdmId);
+
+    List<ClienteFinal> findByDadosCadastroNomeContainingIgnoreCase(String nome);
 }
