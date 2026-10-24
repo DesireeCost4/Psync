@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Psync - Painel Principal</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        .card-stat {
+            transition: transform 0.2s ease;
+        }
+        .card-stat:hover {
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body class="bg-dark text-light">
+
+<!-- Barra de Navegação Superior -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-body-tertiary border-bottom border-secondary mb-4">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-info fs-4" href="#">Psync</a>
+        <span class="badge bg-info bg-opacity-20 text-info border border-info ms-2" th:text="${segmento.descricao}">Psicologia</span>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarHome">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarHome">
+            <ul class="navbar-nav me-auto ms-3">
+                <li class="nav-item"><a class="nav-link active" href="/home">Painel</a></li>
+                <li class="nav-item"><a class="nav-link" href="/clientes" th:text="${segmento.termoCliente} + 's'">Clientes</a></li>
+                <li class="nav-item"><a class="nav-link" href="/agenda">Agenda</a></li>
+                <li class="nav-item"><a class="nav-link" href="/financeiro">Financeiro</a></li>
+            </ul>
+
+            <div class="d-flex align-items-center gap-2">
+                <small class="text-secondary d-none d-md-inline">Simular Nicho:</small>
+                <a href="/home?segmento=PSICOLOGIA" class="btn btn-sm btn-outline-secondary">Psico</a>
+                <a href="/home?segmento=ODONTOLOGIA" class="btn btn-sm btn-outline-secondary">Odonto</a>
+                <a href="/home?segmento=ADVOCACIA" class="btn btn-sm btn-outline-secondary">Adv</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container pb-5">
+
+    <!-- Alertas -->
+    <div th:if="${mensagemSucesso}" class="alert alert-success alert-dismissible fade show border-success bg-success bg-opacity-10 text-success mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${mensagemSucesso}">Ação realizada com sucesso!</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div th:if="${mensagemErro}" class="alert alert-danger alert-dismissible fade show border-danger bg-danger bg-opacity-10 text-danger mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${mensagemErro}">Ocorreu um erro na operação.</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Cabeçalho -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <div>
+            <h1 class="h3 fw-bold mb-1">
+                Painel do Profissional - <span class="text-info" th:text="${segmento.descricao}">Psicologia</span>
+            </h1>
+            <p class="text-secondary mb-0">
+                Gerencie seus <span th:text="${#strings.toLowerCase(segmento.termoCliente) + 's'}">pacientes</span>, prontuários e mensalidades em um só lugar.
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a th:href="@{/add-cliente(segmento=${segmento})}" class="btn btn-info text-dark fw-bold px-3">
+                <i class="bi bi-person-plus-fill me-1"></i>
+                <span th:text="'Novo ' + ${segmento.termoCliente}">Novo Paciente</span>
+            </a>
+
+            <a href="#" class="btn btn-outline-light px-3">
+                <i class="bi bi-calendar-plus me-1"></i>
+                <span th:text="'Agendar ' + ${segmento.termoAtendimento}">Agendar Consulta</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Cards Métricas -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card bg-body-tertiary border-secondary p-3 rounded-3 shadow-sm card-stat h-100">
+                <div class="d-flex align-items-center">
+                    <div class="p-3 bg-info bg-opacity-10 text-info rounded-3 me-3">
+                        <i class="bi bi-people-fill fs-3"></i>
+                    </div>
+                    <div>
+                        <small class="text-secondary d-block" th:text="|Total de ${segmento.termoCliente}s|">Total de Pacientes</small>
+                        <h3 class="fw-bold mb-0" th:text="${totalClientes}">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card bg-body-tertiary border-secondary p-3 rounded-3 shadow-sm card-stat h-100">
+                <div class="d-flex align-items-center">
+                    <div class="p-3 bg-warning bg-opacity-10 text-warning rounded-3 me-3">
+                        <i class="bi bi-calendar-check-fill fs-3"></i>
+                    </div>
+                    <div>
+                        <small class="text-secondary d-block" th:text="${segmento.termoAtendimento} + 's de Hoje'">Consultas Hoje</small>
+                        <h3 class="fw-bold mb-0" th:text="${proximosAtendimentos}">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card bg-body-tertiary border-secondary p-3 rounded-3 shadow-sm card-stat h-100">
+                <div class="d-flex align-items-center">
+                    <div class="p-3 bg-danger bg-opacity-10 text-danger rounded-3 me-3">
+                        <i class="bi bi-cash-stack fs-3"></i>
+                    </div>
+                    <div>
+                        <small class="text-secondary d-block">Mensalidades Pendentes</small>
+                        <h3 class="fw-bold mb-0 text-danger" th:text="${mensalidadesPendentes}">R$ 0,00</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card bg-body-tertiary border-info border-opacity-50 p-3 rounded-3 shadow-sm card-stat h-100">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="badge bg-info text-dark mb-1">Seu Plano Psync</span>
+                        <h6 class="fw-bold mb-0 text-light" th:text="${planoNome}">Plano Profissional</h6>
+                        <small class="text-secondary" th:text="|Vence em ${planoVencimento}|">Vence em 15/10/2026</small>
+                    </div>
+                    <a href="/meu-plano" class="btn btn-sm btn-outline-info">Ver</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela Principal de Clientes Finais -->
+    <div class="card bg-body-tertiary border-secondary shadow-sm rounded-4">
+        <div class="card-header bg-transparent border-secondary py-3 d-flex flex-column align-items-stretch gap-3">
+            <h5 class="card-title fw-bold mb-0">
+                <i class="bi bi-list-task text-info me-2"></i>
+                <span th:text="'Lista de ' + ${segmento.termoCliente} + 's'">Lista de Pacientes</span>
+            </h5>
+            <div class="w-100 mt-3">
+                <form th:action="@{/clientes}" method="get" class="row g-2">
+                    <input type="hidden" name="segmento" th:value="${segmento}">
+                    <div class="col-12 col-md-4">
+                        <label for="filtroNome" class="visually-hidden">Nome</label>
+                        <input id="filtroNome" type="search" name="nome" th:value="${filtroNome}"
+                               class="form-control" placeholder="Nome">
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <label for="filtroCpfCnpj" class="visually-hidden">CPF/CNPJ</label>
+                        <input id="filtroCpfCnpj" type="search" name="cpfCnpj" th:value="${filtroCpfCnpj}"
+                               class="form-control" placeholder="CPF/CNPJ">
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <label for="filtroEmail" class="visually-hidden">E-mail</label>
+                        <input id="filtroEmail" type="search" name="email" th:value="${filtroEmail}"
+                               class="form-control" placeholder="E-mail">
+                    </div>
+                    <div class="col-12 col-md-2 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="bi bi-search me-1"></i>Buscar
+                        </button>
+                        <a th:href="@{/clientes(segmento=${segmento})}" class="btn btn-outline-secondary"
+                           th:if="${(filtroNome != null and !filtroNome.isBlank()) or (filtroCpfCnpj != null and !filtroCpfCnpj.isBlank()) or (filtroEmail != null and !filtroEmail.isBlank())}"
+                           title="Limpar filtros" aria-label="Limpar filtros">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0">
+                    <thead class="table-borderbottom border-secondary text-secondary">
+                    <tr>
+                        <th>Nome</th>
+                        <th>Contato</th>
+                        <th>Status Financeiro</th>
+                        <th th:text="'Último ' + ${segmento.termoAtendimento}">Última Consulta</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- Caso a lista esteja vazia -->
+                    <tr th:if="${#lists.isEmpty(clientes)}">
+                        <td colspan="5" class="text-center py-4 text-secondary">
+                            <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                            Nenhum paciente/cliente cadastrado para este segmento.
+                        </td>
+                    </tr>
+
+                    <tr th:each="cliente : ${clientes}">
+                        <td class="fw-medium">
+                            <i class="bi bi-person-circle text-info me-2"></i>
+                            <span th:text="${cliente.dadosCadastro?.nome != null and !#strings.isEmpty(cliente.dadosCadastro.nome) ? cliente.dadosCadastro.nome : cliente.email}">
+            Nome do Paciente
+        </span>
+                        </td>
+
+                        <td class="small text-secondary"
+                            th:text="${cliente.dadosCadastro?.telefone != null ? cliente.dadosCadastro.telefone : '-'}">
+                            (00) 00000-0000
+                        </td>
+
+                        <!-- Célula do Status Financeiro corrigida -->
+                        <td>
+                            <span class="badge bg-success bg-opacity-20 text-success border border-success">Em Dia</span>
+                        </td>
+
+                        <td class="small">-</td>
+
+                        <td class="text-end">
+                            <!-- Prontuário -->
+                            <a th:href="@{/detalhes-cliente(id=${cliente.id}, segmento=${segmento})}"
+                               class="btn btn-sm btn-outline-info me-1"
+                               title="Ver Prontuário / Ficha">
+                                <i class="bi bi-file-earmark-medical me-1"></i> Prontuário
+                            </a>
+
+                            <!-- Dropdown de Ações -->
+                            <div class="dropdown d-inline-block">
+                                <button class="btn btn-sm btn-outline-secondary"
+                                        type="button"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+
+                                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow border-secondary">
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center gap-2"
+                                           th:href="@{/detalhes-cliente(id=${cliente.id}, segmento=${segmento})}">
+                                            <i class="bi bi-clock-history text-info"></i> Ver Histórico
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center gap-2"
+                                           th:href="@{/editar-cliente(id=${cliente.id}, segmento=${segmento})}">
+                                            <i class="bi bi-pencil text-warning"></i> Editar Dados
+                                        </a>
+                                    </li>
+
+                                    <li><hr class="dropdown-divider border-secondary"></li>
+
+                                    <li>
+                                        <form th:action="@{/deletar-cliente/{id}(id=${cliente.id})}" method="post" style="display:inline;">
+                                            <input type="hidden" name="segmento" th:value="${segmento}">
+                                            <button type="submit"
+                                                    class="dropdown-item d-flex align-items-center gap-2 text-danger"
+                                                    onclick="return confirm('Tem certeza que deseja excluir este cadastro?');">
+                                                <i class="bi bi-trash-fill"></i> Excluir
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

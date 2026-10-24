@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Psync - Gestão Inteligente para Consultórios e Escritórios</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        .hero-section {
+            padding: 100px 0 80px 0;
+            background: radial-gradient(circle at top right, rgba(13, 202, 240, 0.15), transparent 50%);
+        }
+        .feature-card {
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: #0dcaf0 !important;
+        }
+    </style>
+</head>
+<body class="bg-dark text-light">
+
+<!-- Navbar Pública -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-body-tertiary border-bottom border-secondary sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-info fs-3" href="#">Psync</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0 fw-medium">
+                <li class="nav-item"><a class="nav-link" href="#recursos">Recursos</a></li>
+                <li class="nav-item"><a class="nav-link" href="#segmentos">Segmentos</a></li>
+                <li class="nav-item"><a class="nav-link" href="#planos">Planos</a></li>
+            </ul>
+            <div class="d-flex gap-2">
+                <a href="/login" class="btn btn-outline-light px-4">Entrar</a>
+                <a href="/cadastro" class="btn btn-info text-dark fw-bold px-4">Experimente Grátis</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero / Cabeçalho Principal -->
+<section class="hero-section">
+    <div class="container text-center">
+            <span class="badge bg-info bg-opacity-10 text-info border border-info mb-3 px-3 py-2 rounded-pill fs-6">
+                <i class="bi bi-stars me-1"></i> Multi-Segmento e Flexível
+            </span>
+        <h1 class="display-3 fw-bold mb-3">
+            A plataforma que adapta a gestão ao seu <span class="text-info">modelo de negócio</span>
+        </h1>
+        <p class="lead text-secondary mx-auto mb-4" style="max-width: 750px;">
+            Simplifique o agendamento, controle cadastros de pacientes e clientes e automatize a gestão da sua rotina profissional. Adapte o Psync ao seu nicho sem complicação.
+        </p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap mb-5">
+            <a href="/cadastro" class="btn btn-info btn-lg text-dark fw-bold px-5 py-3 shadow">
+                Começar Teste Grátis <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+            <a href="#demo" class="btn btn-outline-light btn-lg px-4 py-3">
+                Ver Demonstração
+            </a>
+        </div>
+
+        <!-- Prova Social / Métricas Simples -->
+        <div class="row pt-4 border-top border-secondary text-center g-4">
+            <div class="col-6 col-md-3">
+                <h3 class="fw-bold text-info mb-0">+99%</h3>
+                <small class="text-secondary">Disponibilidade de Sistema</small>
+            </div>
+            <div class="col-6 col-md-3">
+                <h3 class="fw-bold text-info mb-0">3x</h3>
+                <small class="text-secondary">Mais Rápido na Gestão</small>
+            </div>
+            <div class="col-6 col-md-3">
+                <h3 class="fw-bold text-info mb-0">100%</h3>
+                <small class="text-secondary">Personalizável por Nicho</small>
+            </div>
+            <div class="col-6 col-md-3">
+                <h3 class="fw-bold text-info mb-0">LGPD</h3>
+                <small class="text-secondary">Conformidade e Segurança</small>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Seção de Segmentos / Flexibilidade do Psync -->
+<section id="segmentos" class="py-5 bg-body-tertiary border-top border-bottom border-secondary">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h2 class="h1 fw-bold mb-2">Um sistema, termos do <span class="text-info">seu nicho</span></h2>
+            <p class="text-secondary">O Psync ajusta a nomenclatura e os fluxos automaticamente de acordo com sua profissão.</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Card Psicologia -->
+            <div class="col-md-4">
+                <div class="card bg-dark border-secondary p-4 rounded-4 h-100 feature-card">
+                    <i class="bi bi-heart-pulse fs-1 text-info mb-3"></i>
+                    <h4 class="fw-bold mb-2">Psicologia</h4>
+                    <p class="text-secondary">Gerencie seus <strong>pacientes</strong>, prontuários evolutivos e <strong>sessões</strong> de forma humanizada e segura.</p>
+                </div>
+            </div>
+
+            <!-- Card Odontologia -->
+            <div class="col-md-4">
+                <div class="card bg-dark border-secondary p-4 rounded-4 h-100 feature-card">
+                    <i class="bi bi-person-workspace fs-1 text-info mb-3"></i>
+                    <h4 class="fw-bold mb-2">Odontologia</h4>
+                    <p class="text-secondary">Organize o cadastro de <strong>pacientes</strong>, fichas de <strong>consultas</strong> e acompanhamento contínuo dos tratamentos.</p>
+                </div>
+            </div>
+
+            <!-- Card Advocacia -->
+            <div class="col-md-4">
+                <div class="card bg-dark border-secondary p-4 rounded-4 h-100 feature-card">
+                    <i class="bi bi-briefcase fs-1 text-info mb-3"></i>
+                    <h4 class="fw-bold mb-2">Advocacia</h4>
+                    <p class="text-secondary">Controle de <strong>clientes</strong>, agenda de <strong>reuniões/audiências</strong> e acompanhamento dos atendimentos em um único lugar.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Recursos Principais -->
+<section id="recursos" class="py-5">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h2 class="h1 fw-bold">Tudo o que você precisa para crescer</h2>
+            <p class="text-secondary">Recursos desenhados para tirar a burocracia do seu dia a dia.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="p-4 rounded-3 bg-secondary bg-opacity-10 border border-secondary h-100">
+                    <i class="bi bi-calendar-event fs-2 text-info mb-3 d-block"></i>
+                    <h5 class="fw-bold">Agenda Inteligente</h5>
+                    <p class="text-secondary mb-0">Visualize atendimentos diários, semanais e evite conflitos de horários na sua rotina.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 rounded-3 bg-secondary bg-opacity-10 border border-secondary h-100">
+                    <i class="bi bi-people fs-2 text-info mb-3 d-block"></i>
+                    <h5 class="fw-bold">Gestão do Cliente/Paciente</h5>
+                    <p class="text-secondary mb-0">Histórico completo de interações, dados de contato e acompanhamento centralizado.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 rounded-3 bg-secondary bg-opacity-10 border border-secondary h-100">
+                    <i class="bi bi-shield-lock fs-2 text-info mb-3 d-block"></i>
+                    <h5 class="fw-bold">Segurança de Dados</h5>
+                    <p class="text-secondary mb-0">Seus dados e de seus clientes totalmente criptografados com padrões rígidos de proteção.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Final -->
+<section class="py-5 bg-body-tertiary border-top border-secondary">
+    <div class="container text-center py-4">
+        <h2 class="h1 fw-bold mb-3">Pronto para transformar a gestão do seu escritório?</h2>
+        <p class="text-secondary mb-4">Crie sua conta agora e comece a gerenciar em poucos minutos.</p>
+        <a href="/cadastro" class="btn btn-info btn-lg text-dark fw-bold px-5 py-3">
+            Criar Minha Conta no Psync
+        </a>
+    </div>
+</section>
+
+<!-- Rodapé -->
+<footer class="py-4 border-top border-secondary text-center text-secondary fs-7">
+    <div class="container">
+        <p class="mb-0">&copy; 2026 Psync. Todos os direitos reservados.</p>
+    </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

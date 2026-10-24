@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Psync - Entrar na sua conta</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at top left, rgba(13, 202, 240, 0.12), transparent 40%),
+            radial-gradient(circle at bottom right, rgba(13, 202, 240, 0.05), transparent 40%);
+        }
+        .login-card {
+            max-width: 420px;
+            width: 100%;
+        }
+        .form-control:focus {
+            border-color: #0dcaf0;
+            box-shadow: 0 0 0 0.25rem rgba(13, 202, 240, 0.25);
+        }
+    </style>
+</head>
+<body class="bg-dark text-light d-flex align-items-center justify-content-center py-5">
+
+<div class="container d-flex justify-content-center">
+    <div class="login-card">
+
+        <!-- Logo e Cabeçalho -->
+        <div class="text-center mb-4">
+            <a href="/" class="text-decoration-none">
+                <h1 class="fw-bold text-info display-5 mb-1">Psync</h1>
+            </a>
+            <p class="text-secondary">Acesse seu painel de gestão inteligente</p>
+        </div>
+
+        <!-- Card de Login -->
+        <div class="card bg-secondary bg-opacity-10 border-secondary p-4 p-sm-5 rounded-4 shadow-lg">
+
+            <!-- Alerta de Erro do Spring Security (Se houver param ?error na URL) -->
+            <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                <div>E-mail ou senha inválidos.</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <!-- Alerta de Logout Realizado -->
+            <div th:if="${param.logout}" class="alert alert-info alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
+                <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+                <div>Você saiu da sua conta com sucesso.</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <form th:action="@{/login}" method="post">
+
+                <!-- Campo E-mail / CNPJ -->
+                <div class="mb-3">
+                    <label for="username" class="form-label fw-medium text-light">CPF, CNPJ ou E-mail</label>
+                    <div class="input-group">
+        <span class="input-group-text bg-dark border-secondary text-secondary">
+            <i class="bi bi-person-vcard"></i>
+        </span>
+                        <input type="text" class="form-control bg-dark border-secondary text-light" id="username" name="username" placeholder="Digite seu acesso" required autofocus>
+                    </div>
+                </div>
+
+                <!-- Campo Senha -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label for="password" class="form-label fw-medium text-light mb-0">Senha</label>
+                        <a href="/recuperar-senha" class="text-info text-decoration-none small">Esqueceu a senha?</a>
+                    </div>
+                    <div class="input-group">
+        <span class="input-group-text bg-dark border-secondary text-secondary">
+            <i class="bi bi-lock"></i>
+        </span>
+                        <input type="password" class="form-control bg-dark border-secondary text-light" id="password" name="password" placeholder="••••••••" required>
+                        <button class="btn btn-outline-secondary border-secondary bg-dark" type="button" id="togglePassword">
+                            <i class="bi bi-eye text-secondary" id="eyeIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Checkbox Lembrar de Mim -->
+                <div class="form-check mb-4">
+                    <input class="form-check-input bg-dark border-secondary" type="checkbox" id="remember-me" name="remember-me">
+                    <label class="form-check-label text-secondary small" for="remember-me">
+                        Lembrar deste dispositivo
+                    </label>
+                </div>
+
+                <!-- Botão de Entrar -->
+                <button type="submit" class="btn btn-info text-dark fw-bold w-100 py-2 shadow-sm fs-6">
+                    Entrar <i class="bi bi-box-arrow-in-right ms-1"></i>
+                </button>
+
+
+                                <!-- Rodapé da Card -->
+                                <div class="text-center mt-4">
+                                    <p class="text-secondary small mb-1">
+                                        Ainda não tem uma conta? <a href="/cadastro" class="text-info text-decoration-none fw-medium">Experimente grátis</a>
+                                    </p>
+                                    <a href="/" class="text-secondary text-decoration-none small d-inline-block mt-2">
+                                        <i class="bi bi-arrow-left me-1"></i> Voltar para a página inicial
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Bootstrap JS + Script para alternar visibilidade de senha -->
+                        <script src="[https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js](https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js)"></script>
+                        <script>
+                            const togglePassword = document.querySelector('#togglePassword');
+                            const password = document.querySelector('#password');
+                            const eyeIcon = document.querySelector('#eyeIcon');
+
+                            togglePassword.addEventListener('click', function () {
+                                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                                password.setAttribute('type', type);
+                                eyeIcon.classList.toggle('bi-eye');
+                                eyeIcon.classList.toggle('bi-eye-slash');
+                            });
+                        </script>
+                        </body>
+</html>
