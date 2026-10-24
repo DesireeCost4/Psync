@@ -23,7 +23,7 @@ public class MensalidadeService {
 
     public List<Mensalidade> listarPorCliente(Long clienteId, Long admId) {
         validarCliente(clienteId, admId);
-        return mensalidadeRepository.findByClienteFinalId(clienteId);
+        return mensalidadeRepository.findByClienteFinalIdOrderByDataVencimentoDesc(clienteId);
     }
 
     public void criar(Long clienteId, Long admId, Mensalidade mensalidade) {

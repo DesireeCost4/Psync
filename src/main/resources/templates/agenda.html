@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Psync - Agenda</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body class="bg-dark text-light">
+<nav class="navbar navbar-expand-lg navbar-dark bg-body-tertiary border-bottom border-secondary mb-4">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-info fs-4" href="/home">Psync</a>
+        <div class="ms-auto d-flex gap-2">
+            <a th:href="@{/home(segmento=${segmento})}" class="btn btn-sm btn-outline-secondary">Painel</a>
+            <a th:href="@{/clientes(segmento=${segmento})}" class="btn btn-sm btn-outline-secondary">Clientes</a>
+        </div>
+    </div>
+</nav>
+
+<main class="container pb-5">
+    <div th:if="${mensagemSucesso}" class="alert alert-success" th:text="${mensagemSucesso}"></div>
+    <div th:if="${mensagemErro}" class="alert alert-danger" th:text="${mensagemErro}"></div>
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1">Agenda</h1>
+            <p class="text-secondary mb-0">Consultas e sessões agendadas.</p>
+        </div>
+        <form th:action="@{/agenda}" method="get" class="d-flex gap-2">
+            <input type="hidden" name="segmento" th:value="${segmento}">
+            <input type="date" name="data" class="form-control" th:value="${dataSelecionada}">
+            <button class="btn btn-outline-info" type="submit">Filtrar</button>
+        </form>
+    </div>
+
+    <div class="card bg-body-tertiary border-secondary rounded-4 mb-4">
+        <div class="card-header bg-transparent border-secondary">
+            <h2 class="h5 mb-0">Novo agendamento</h2>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/agenda}" th:object="${novoAgendamento}" method="post" class="row g-3">
+                <input type="hidden" name="segmento" th:value="${segmento}">
+                <div class="col-12 col-md-4">
+                    <label for="clienteId" class="form-label">Cliente</label>
+                    <select id="clienteId" name="clienteId" class="form-select" required>
+                        <option value="">Selecione</option>
+                        <option th:each="cliente : ${clientes}" th:value="${cliente.id}"
+                                th:text="${cliente.dadosCadastro?.nome ?: cliente.email}"></option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-4">
+                    <label for="titulo" class="form-label">Título</label>
+                    <input id="titulo" th:field="*{titulo}" class="form-control" maxlength="150" required>
+                </div>
+                <div class="col-12 col-md-2">
+                    <label for="inicio" class="form-label">Início</label>
+                    <input id="inicio" th:field="*{inicio}" type="datetime-local" class="form-control" required>
+                </div>
+                <div class="col-12 col-md-2">
+                    <label for="fim" class="form-label">Fim</label>
+                    <input id="fim" th:field="*{fim}" type="datetime-local" class="form-control" required>
+                </div>
+                <div class="col-12">
+                    <label for="observacoes" class="form-label">Observações</label>
+                    <textarea id="observacoes" th:field="*{observacoes}" class="form-control" rows="2" maxlength="1000"></textarea>
+                </div>
+                <div class="col-12">
+                    <button class="btn btn-info text-dark fw-bold" type="submit">
+                        <i class="bi bi-calendar-plus me-1"></i>Agendar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card bg-body-tertiary border-secondary rounded-4">
+        <div class="card-header bg-transparent border-secondary">
+            <h2 class="h5 mb-0">Compromissos do dia</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle mb-0">
+                <thead class="text-secondary">
+                <tr>
+                    <th>Horário</th><th>Cliente</th><th>Atendimento</th><th>Status</th><th class="text-end">Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(agendamentos)}">
+                    <td colspan="5" class="text-center text-secondary py-4">Nenhum agendamento para esta data.</td>
+                </tr>
+                <tr th:each="agendamento : ${agendamentos}">
+                    <td th:text="|${#temporals.format(agendamento.inicio, 'HH:mm')} - ${#temporals.format(agendamento.fim, 'HH:mm')}|"></td>
+                    <td th:text="${agendamento.clienteFinal.dadosCadastro?.nome ?: agendamento.clienteFinal.email}"></td>
+                    <td>
+                        <strong th:text="${agendamento.titulo}"></strong>
+                        <small class="d-block text-secondary" th:if="${agendamento.observacoes}" th:text="${agendamento.observacoes}"></small>
+                    </td>
+                    <td>
+                        <span class="badge bg-info text-dark" th:if="${agendamento.status.name() == 'AGENDADO'}">Agendado</span>
+                        <span class="badge bg-success" th:if="${agendamento.status.name() == 'REALIZADO'}">Realizado</span>
+                        <span class="badge bg-danger" th:if="${agendamento.status.name() == 'CANCELADO'}">Cancelado</span>
+                        <span class="badge bg-warning text-dark" th:if="${agendamento.status.name() == 'NAO_COMPARECEU'}">Não compareceu</span>
+                    </td>
+                    <td class="text-end">
+                        <form th:action="@{/agenda/{id}/status(id=${agendamento.id})}" method="post" class="d-inline-flex gap-1">
+                            <input type="hidden" name="segmento" th:value="${segmento}">
+                            <select name="status" class="form-select form-select-sm">
+                                <option th:each="status : ${statusAgendamento}" th:value="${status}" th:text="${status}"></option>
+                            </select>
+                            <button class="btn btn-sm btn-outline-info" type="submit" title="Atualizar status">
+                                <i class="bi bi-check-lg"></i>
+                            </button>
+                        </form>
+                        <form th:action="@{/agenda/{id}/deletar(id=${agendamento.id})}" method="post" class="d-inline">
+                            <input type="hidden" name="segmento" th:value="${segmento}">
+                            <button class="btn btn-sm btn-outline-danger" type="submit" title="Excluir">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

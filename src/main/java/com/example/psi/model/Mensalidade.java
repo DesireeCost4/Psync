@@ -12,7 +12,7 @@ public class Mensalidade {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal valor;
 
     @Column(nullable = false)

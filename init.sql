@@ -46,6 +46,22 @@ CREATE TABLE tb_mensalidade (
                                 CONSTRAINT fk_mensalidade_final FOREIGN KEY (cliente_final_id) REFERENCES tb_cliente_final(id) ON DELETE CASCADE
 );
 
+-- 6. Agendamentos de consultas/sessões
+CREATE TABLE tb_agendamento (
+                                id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                inicio DATETIME NOT NULL,
+                                fim DATETIME NOT NULL,
+                                titulo VARCHAR(150) NOT NULL,
+                                observacoes VARCHAR(1000),
+                                status VARCHAR(20) NOT NULL DEFAULT 'AGENDADO',
+                                cliente_adm_id BIGINT NOT NULL,
+                                cliente_final_id BIGINT NOT NULL,
+                                CONSTRAINT fk_agendamento_adm FOREIGN KEY (cliente_adm_id)
+                                    REFERENCES tb_cliente_adm(id) ON DELETE CASCADE,
+                                CONSTRAINT fk_agendamento_cliente FOREIGN KEY (cliente_final_id)
+                                    REFERENCES tb_cliente_final(id) ON DELETE CASCADE
+);
+
 -- -----------------------------------------------------
 -- CARGA INICIAL DE TESTE (Evita o erro de FK no backend)
 -- -----------------------------------------------------
