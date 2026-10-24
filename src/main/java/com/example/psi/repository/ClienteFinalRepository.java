@@ -7,12 +7,15 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ClienteFinalRepository extends JpaRepository<ClienteFinal, Long> {
 
     // Busca todos os clientes finais pertencentes a um determinado ADM/Segmento
     List<ClienteFinal> findByClienteAdmId(Long clienteAdmId);
+
+    Optional<ClienteFinal> findByEmailIgnoreCase(String email);
 
     @Query("""
             SELECT cliente

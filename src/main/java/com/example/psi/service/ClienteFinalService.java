@@ -35,12 +35,26 @@ public class ClienteFinalService {
         return clienteFinalRepository.findById(id);
     }
 
+    public Optional<ClienteFinal> buscarPorEmail(String email) {
+        return email == null || email.isBlank()
+                ? Optional.empty()
+                : clienteFinalRepository.findByEmailIgnoreCase(email.trim());
+    }
+
     public ClienteFinal salvar(ClienteFinal clienteFinal) {
         return clienteFinalRepository.save(clienteFinal);
     }
 
     public void deletar(Long id) {
         clienteFinalRepository.deleteById(id);
+    }
+
+    public void deletar(Long id, Long clienteAdmId) {
+        ClienteFinal cliente = clienteFinalRepository.findById(id)
+                .filter(item -> item.getClienteAdm() != null
+                        && clienteAdmId.equals(item.getClienteAdm().getId()))
+                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado."));
+        clienteFinalRepository.delete(cliente);
     }
 
     private String normalizarFiltro(String filtro) {

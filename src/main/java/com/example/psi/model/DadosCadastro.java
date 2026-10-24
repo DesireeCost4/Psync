@@ -16,6 +16,7 @@ public class DadosCadastro {
     private String nome;
 
     private String cpfCnpj;
+    private String razaoSocial;
     private String telefone;
     private String endereco;
 
@@ -43,6 +44,14 @@ public class DadosCadastro {
 
     public String getCpfCnpj() {
         return cpfCnpj;
+    }
+
+    public String getRazaoSocial() {
+        return razaoSocial;
+    }
+
+    public void setRazaoSocial(String razaoSocial) {
+        this.razaoSocial = razaoSocial;
     }
 
     public void setCpfCnpj(String cpfCnpj) {

@@ -47,7 +47,9 @@
         <!-- Card de Cadastro -->
         <div class="card bg-body-tertiary border-secondary shadow-lg p-4 p-sm-5 rounded-4">
 
-            <form th:action="@{/cadastro}" method="post">
+            <div th:if="${mensagemErro}" class="alert alert-danger" th:text="${mensagemErro}"></div>
+            <form th:action="@{/cadastro}" th:object="${cadastro}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
                 <!-- Nome do Profissional (Obrigatório) -->
                 <div class="mb-3">
@@ -56,7 +58,7 @@
                             <span class="input-group-text bg-dark border-secondary text-secondary">
                                 <i class="bi bi-person"></i>
                             </span>
-                        <input type="text" class="form-control bg-dark border-secondary text-light" id="nome" name="nome" placeholder="Digite seu nome completo" required autofocus>
+                        <input type="text" class="form-control bg-dark border-secondary text-light" id="nome" th:field="*{nome}" placeholder="Digite seu nome completo" required autofocus>
                     </div>
                 </div>
 
@@ -67,7 +69,7 @@
                             <span class="input-group-text bg-dark border-secondary text-secondary">
                                 <i class="bi bi-building"></i>
                             </span>
-                        <input type="text" class="form-control bg-dark border-secondary text-light" id="razaoSocial" name="razaoSocial" placeholder="Ex: Clínica Psync Saúde">
+                        <input type="text" class="form-control bg-dark border-secondary text-light" id="razaoSocial" th:field="*{razaoSocial}" placeholder="Ex: Clínica Psync Saúde">
                     </div>
                 </div>
 
@@ -78,7 +80,7 @@
                             <span class="input-group-text bg-dark border-secondary text-secondary">
                                 <i class="bi bi-envelope"></i>
                             </span>
-                        <input type="email" class="form-control bg-dark border-secondary text-light" id="email" name="email" placeholder="seu@email.com" required>
+                        <input type="email" class="form-control bg-dark border-secondary text-light" id="email" th:field="*{email}" placeholder="seu@email.com" required>
                     </div>
                 </div>
 
@@ -89,7 +91,7 @@
                             <span class="input-group-text bg-dark border-secondary text-secondary">
                                 <i class="bi bi-whatsapp"></i>
                             </span>
-                        <input type="tel" class="form-control bg-dark border-secondary text-light" id="telefone" name="telefone" placeholder="(00) 00000-0000" required>
+                        <input type="tel" class="form-control bg-dark border-secondary text-light" id="telefone" th:field="*{telefone}" placeholder="(00) 00000-0000" required>
                     </div>
                 </div>
 
@@ -101,7 +103,7 @@
                             <option value="CPF" selected>CPF</option>
                             <option value="CNPJ">CNPJ</option>
                         </select>
-                        <input type="text" class="form-control bg-dark border-secondary text-light" id="documento" name="documento" placeholder="000.000.000-00" required>
+                        <input type="text" class="form-control bg-dark border-secondary text-light" id="documento" th:field="*{documento}" placeholder="000.000.000-00" required>
                     </div>
                 </div>
 
@@ -112,7 +114,7 @@
                             <span class="input-group-text bg-dark border-secondary text-secondary">
                                 <i class="bi bi-briefcase"></i>
                             </span>
-                        <select class="form-select bg-dark border-secondary text-light" id="seguimentoTipo" name="seguimentoTipo" required>
+                        <select class="form-select bg-dark border-secondary text-light" id="seguimentoTipo" th:field="*{seguimentoTipo}" required>
                             <option value="" disabled selected>Selecione sua área...</option>
                             <option value="PSICOLOGIA">Psicologia</option>
                             <option value="ODONTOLOGIA">Odontologia</option>
@@ -129,7 +131,7 @@
                             <span class="input-group-text bg-dark border-secondary text-secondary">
                                 <i class="bi bi-lock"></i>
                             </span>
-                        <input type="password" class="form-control bg-dark border-secondary text-light" id="password" name="password" placeholder="Crie uma senha forte" required>
+                        <input type="password" class="form-control bg-dark border-secondary text-light" id="password" th:field="*{password}" placeholder="Mínimo de 8 caracteres" minlength="8" required>
                         <button class="btn btn-outline-secondary border-secondary bg-dark" type="button" id="togglePassword">
                             <i class="bi bi-eye text-secondary" id="eyeIcon"></i>
                         </button>

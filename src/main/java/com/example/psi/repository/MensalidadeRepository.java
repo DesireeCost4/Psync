@@ -14,7 +14,8 @@ import java.util.List;
 public interface MensalidadeRepository extends JpaRepository<Mensalidade, Long> {
 
     List<Mensalidade> findByClienteAdmId(Long clienteAdmId);
-    List<Mensalidade> findByClienteFinalIdOrderByDataVencimentoDesc(Long clienteFinalId);
+    List<Mensalidade> findByClienteFinalIdAndClienteAdmIdOrderByDataVencimentoDesc(
+            Long clienteFinalId, Long clienteAdmId);
 
     @Query("""
             SELECT m.clienteFinal.id AS clienteId,

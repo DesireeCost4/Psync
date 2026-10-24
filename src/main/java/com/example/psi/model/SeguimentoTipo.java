@@ -5,7 +5,8 @@ public enum SeguimentoTipo {
     PSICOLOGIA("Psicologia", "Paciente", "Sessão"),
     ODONTOLOGIA("Odontologia", "Paciente", "Consulta"),
     MEDICINA("Medicina", "Paciente", "Consulta"),
-    ADVOCACIA("Advocacia", "Cliente", "Atendimento");
+    ADVOCACIA("Advocacia", "Cliente", "Atendimento"),
+    OUTRO("Geral", "Cliente", "Atendimento");
 
     private final String descricao;
     private final String termoCliente;   // Ex: Paciente ou Cliente

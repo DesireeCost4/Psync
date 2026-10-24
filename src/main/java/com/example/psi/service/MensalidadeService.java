@@ -3,6 +3,7 @@ package com.example.psi.service;
 import com.example.psi.model.ClienteFinal;
 import com.example.psi.model.Mensalidade;
 import com.example.psi.model.StatusMensalidade;
+import com.example.psi.model.StatusFinanceiro;
 import com.example.psi.repository.ClienteFinalRepository;
 import com.example.psi.repository.MensalidadeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,8 @@ public class MensalidadeService {
 
     public List<Mensalidade> listarPorCliente(Long clienteId, Long admId) {
         validarCliente(clienteId, admId);
-        return mensalidadeRepository.findByClienteFinalIdOrderByDataVencimentoDesc(clienteId);
+        return mensalidadeRepository.findByClienteFinalIdAndClienteAdmIdOrderByDataVencimentoDesc(
+                clienteId, admId);
     }
 
     public void criar(Long clienteId, Long admId, Mensalidade mensalidade) {
@@ -56,6 +58,20 @@ public class MensalidadeService {
 
     public BigDecimal totalPendente(Long admId) {
         return mensalidadeRepository.somarMensalidadesPendentes(admId);
+    }
+
+    public StatusFinanceiro calcularStatusFinanceiro(List<Mensalidade> mensalidades) {
+        boolean atrasada = mensalidades.stream()
+                .anyMatch(mensalidade -> mensalidade.getStatus() != StatusMensalidade.PAGO
+                        && mensalidade.getStatus() != StatusMensalidade.CANCELADO
+                        && mensalidade.getDataVencimento().isBefore(LocalDate.now()));
+        if (atrasada) {
+            return StatusFinanceiro.ATRASADA;
+        }
+
+        return mensalidades.stream().anyMatch(mensalidade -> mensalidade.getStatus() == StatusMensalidade.PENDENTE)
+                ? StatusFinanceiro.PENDENTE
+                : StatusFinanceiro.EM_DIA;
     }
 
     private ClienteFinal validarCliente(Long clienteId, Long admId) {

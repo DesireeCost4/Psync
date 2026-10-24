@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SegmentoAdmRepository extends JpaRepository<SegmentoAdm, Long> {
+
+    java.util.Optional<SegmentoAdm> findByNomeIgnoreCase(String nome);
 }

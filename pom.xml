@@ -42,6 +42,12 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- Autenticação e controle de acesso -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
         <!-- Driver para Banco de Dados MySQL -->
         <dependency>
             <groupId>com.mysql</groupId>

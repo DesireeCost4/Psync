@@ -3,6 +3,7 @@ package com.example.psi.repository;
 import com.example.psi.model.Agendamento;
 import com.example.psi.model.StatusAgendamento;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -32,8 +33,12 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
                            @Param("inicio") LocalDateTime inicio,
                            @Param("fim") LocalDateTime fim);
 
+    @EntityGraph(attributePaths = {"clienteFinal", "clienteFinal.dadosCadastro"})
     List<Agendamento> findByClienteFinalIdAndClienteAdmIdOrderByInicioDesc(
             Long clienteFinalId, Long clienteAdmId);
+
+    @EntityGraph(attributePaths = {"clienteFinal"})
+    List<Agendamento> findByClienteAdmIdOrderByInicioDesc(Long clienteAdmId);
 
     long countByClienteAdmIdAndInicioBetweenAndStatus(
             Long clienteAdmId, LocalDateTime inicio, LocalDateTime fim, StatusAgendamento status);

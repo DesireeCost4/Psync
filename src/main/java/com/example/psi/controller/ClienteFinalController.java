@@ -7,13 +7,20 @@ import com.example.psi.model.Mensalidade;
 import com.example.psi.model.SeguimentoTipo;
 import com.example.psi.model.StatusFinanceiro;
 import com.example.psi.repository.StatusFinanceiroProjection;
+import com.example.psi.model.Agendamento;
+import com.example.psi.model.Processo;
+import com.example.psi.service.AgendamentoService;
+import com.example.psi.repository.ProcessoRepository;
 import com.example.psi.service.ClienteFinalService;
 import com.example.psi.service.MensalidadeService;
+import com.example.psi.service.ProfissionalService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 import java.util.Objects;
@@ -27,25 +34,34 @@ public class ClienteFinalController {
     @Autowired
     private MensalidadeService mensalidadeService;
 
-    private SeguimentoTipo obterSegmento(String segmentoParam) {
-        try {
-            return SeguimentoTipo.valueOf(segmentoParam.toUpperCase());
-        } catch (Exception e) {
-            return SeguimentoTipo.PSICOLOGIA;
-        }
-    }
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    private ProfissionalService profissionalService;
+
+    @Autowired
+    private AgendamentoService agendamentoService;
+
+    @Autowired
+    private ProcessoRepository processoRepository;
 
     // 1. Rota Única para Detalhes / Prontuário do Paciente
-    @GetMapping("/detalhes-cliente")
+    @GetMapping({"/detalhes-cliente", "/detalhe-clientes"})
     public String detalhesCliente(@RequestParam(name = "id", required = false) Long id,
-                                  @RequestParam(name = "segmento", defaultValue = "PSICOLOGIA") String segmentoParam,
+                                  Authentication authentication,
                                   Model model) {
 
-        SeguimentoTipo segmentoAtivo = obterSegmento(segmentoParam);
+        Long admId = profissionalService.obterId(authentication.getName());
+        SeguimentoTipo segmentoAtivo = profissionalService.obterSegmento(authentication.getName());
 
         ClienteFinal cliente = (id != null)
                 ? clienteFinalService.buscarPorId(id).orElse(new ClienteFinal())
                 : new ClienteFinal();
+        if (cliente.getId() != null && (cliente.getClienteAdm() == null
+                || !admId.equals(cliente.getClienteAdm().getId()))) {
+            throw new IllegalArgumentException("Cliente não encontrado.");
+        }
 
         model.addAttribute("cliente", cliente);
         model.addAttribute("segmento", segmentoAtivo);
@@ -53,14 +69,22 @@ public class ClienteFinalController {
         model.addAttribute("statusFinanceiro", StatusFinanceiro.EM_DIA);
         if (cliente.getId() != null) {
             model.addAttribute("mensalidades",
-                    mensalidadeService.listarPorCliente(cliente.getId(), 1L));
-            StatusFinanceiro statusFinanceiro = mensalidadeService.statusPorClientes(1L).stream()
+                    mensalidadeService.listarPorCliente(cliente.getId(), admId));
+            StatusFinanceiro statusFinanceiro = mensalidadeService.statusPorClientes(admId).stream()
                     .filter(status -> Objects.equals(status.getClienteId(), cliente.getId()))
                     .map(StatusFinanceiroProjection::getStatus)
                     .map(StatusFinanceiro::valueOf)
                     .findFirst()
                     .orElse(StatusFinanceiro.EM_DIA);
             model.addAttribute("statusFinanceiro", statusFinanceiro);
+            model.addAttribute("agendamentos",
+                    agendamentoService.listarPorCliente(cliente.getId(), admId));
+            model.addAttribute("processos",
+                    processoRepository.findByClienteFinalIdAndClienteAdmIdOrderByUltimaMovimentacaoDesc(
+                            cliente.getId(), admId));
+        } else {
+            model.addAttribute("agendamentos", List.of());
+            model.addAttribute("processos", List.of());
         }
 
         return "detalhes-clienteFinal";
@@ -69,51 +93,54 @@ public class ClienteFinalController {
     @PostMapping("/clientes/{clienteId}/mensalidades")
     public String criarMensalidade(@PathVariable Long clienteId,
                                    @ModelAttribute Mensalidade mensalidade,
-                                   @RequestParam(name = "segmento", defaultValue = "PSICOLOGIA") String segmentoParam,
+                                   Authentication authentication,
                                    RedirectAttributes redirectAttributes) {
+        Long admId = profissionalService.obterId(authentication.getName());
         try {
-            mensalidadeService.criar(clienteId, 1L, mensalidade);
+            mensalidadeService.criar(clienteId, admId, mensalidade);
             redirectAttributes.addFlashAttribute("mensagemSucesso", "Mensalidade criada com sucesso.");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("mensagemErro", e.getMessage());
         }
-        return "redirect:/detalhes-cliente?id=" + clienteId + "&segmento=" + segmentoParam;
+        return "redirect:/detalhes-cliente?id=" + clienteId;
     }
 
     @PostMapping("/mensalidades/{id}/pagar")
     public String pagarMensalidade(@PathVariable Long id,
                                    @RequestParam Long clienteId,
-                                   @RequestParam(name = "segmento", defaultValue = "PSICOLOGIA") String segmentoParam,
+                                   Authentication authentication,
                                    RedirectAttributes redirectAttributes) {
+        Long admId = profissionalService.obterId(authentication.getName());
         try {
-            mensalidadeService.marcarComoPaga(id, 1L);
+            mensalidadeService.marcarComoPaga(id, admId);
             redirectAttributes.addFlashAttribute("mensagemSucesso", "Mensalidade baixada com sucesso.");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("mensagemErro", e.getMessage());
         }
-        return "redirect:/detalhes-cliente?id=" + clienteId + "&segmento=" + segmentoParam;
+        return "redirect:/detalhes-cliente?id=" + clienteId;
     }
 
     @PostMapping("/mensalidades/{id}/deletar")
     public String deletarMensalidade(@PathVariable Long id,
                                      @RequestParam Long clienteId,
-                                     @RequestParam(name = "segmento", defaultValue = "PSICOLOGIA") String segmentoParam,
+                                     Authentication authentication,
                                      RedirectAttributes redirectAttributes) {
+        Long admId = profissionalService.obterId(authentication.getName());
         try {
-            mensalidadeService.deletar(id, 1L);
+            mensalidadeService.deletar(id, admId);
             redirectAttributes.addFlashAttribute("mensagemSucesso", "Mensalidade excluída com sucesso.");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("mensagemErro", e.getMessage());
         }
-        return "redirect:/detalhes-cliente?id=" + clienteId + "&segmento=" + segmentoParam;
+        return "redirect:/detalhes-cliente?id=" + clienteId;
     }
 
     // 2. Form de Cadastro Novo
     @GetMapping("/add-cliente")
-    public String exibirFormulario(@RequestParam(name = "segmento", defaultValue = "PSICOLOGIA") String segmentoParam,
+    public String exibirFormulario(Authentication authentication,
                                    Model model) {
 
-        SeguimentoTipo segmentoAtivo = obterSegmento(segmentoParam);
+        SeguimentoTipo segmentoAtivo = profissionalService.obterSegmento(authentication.getName());
 
         ClienteFinal cliente = new ClienteFinal();
         cliente.setDadosCadastro(new DadosCadastro());
@@ -127,14 +154,18 @@ public class ClienteFinalController {
     // 3. Form de Edição de Paciente Existente
     @GetMapping("/editar-cliente")
     public String editarCliente(@RequestParam("id") Long id,
-                                @RequestParam(name = "segmento", defaultValue = "PSICOLOGIA") String segmentoParam,
+                                Authentication authentication,
                                 Model model) {
 
-        SeguimentoTipo segmentoAtivo = obterSegmento(segmentoParam);
+        SeguimentoTipo segmentoAtivo = profissionalService.obterSegmento(authentication.getName());
 
         // Trata o Optional retornado pelo Service
         ClienteFinal cliente = clienteFinalService.buscarPorId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado com o ID: " + id));
+        Long admId = profissionalService.obterId(authentication.getName());
+        if (cliente.getClienteAdm() == null || !admId.equals(cliente.getClienteAdm().getId())) {
+            throw new IllegalArgumentException("Cliente não encontrado.");
+        }
 
         model.addAttribute("clienteFinal", cliente);
         model.addAttribute("segmento", segmentoAtivo);
@@ -145,19 +176,24 @@ public class ClienteFinalController {
     // 4. Salvar / Atualizar
     @PostMapping("/salvar-cliente")
     public String salvarCliente(@ModelAttribute("clienteFinal") ClienteFinal clienteFinal,
-                                @RequestParam(name = "segmento", defaultValue = "PSICOLOGIA") String segmentoParam,
+                                Authentication authentication,
                                 RedirectAttributes redirectAttributes) {
+        Long admId = profissionalService.obterId(authentication.getName());
 
         // 1. Garante que o ClienteAdm (mock do utilizador logado) está associado
         if (clienteFinal.getClienteAdm() == null || clienteFinal.getClienteAdm().getId() == null) {
             ClienteAdm admMock = new ClienteAdm();
-            admMock.setId(1L);
+            admMock.setId(admId);
             clienteFinal.setClienteAdm(admMock);
         }
 
         // 2. Se for uma edição e o id de clienteFinal já existir, garante a associação de DadosCadastro
         if (clienteFinal.getId() != null) {
             clienteFinalService.buscarPorId(clienteFinal.getId()).ifPresent(clienteExistente -> {
+                if (clienteExistente.getClienteAdm() == null
+                        || !admId.equals(clienteExistente.getClienteAdm().getId())) {
+                    throw new IllegalArgumentException("Cliente não encontrado.");
+                }
                 if (clienteExistente.getDadosCadastro() != null && clienteFinal.getDadosCadastro() != null) {
                     clienteFinal.getDadosCadastro().setId(clienteExistente.getDadosCadastro().getId());
                 }
@@ -165,26 +201,33 @@ public class ClienteFinalController {
         }
 
         try {
+            if (clienteFinal.getSenhaAcesso() != null && !clienteFinal.getSenhaAcesso().isBlank()) {
+                clienteFinal.setSenha(passwordEncoder.encode(clienteFinal.getSenhaAcesso()));
+            } else if (clienteFinal.getId() != null) {
+                clienteFinalService.buscarPorId(clienteFinal.getId())
+                        .ifPresent(clienteExistente -> clienteFinal.setSenha(clienteExistente.getSenha()));
+            }
             clienteFinalService.salvar(clienteFinal);
             redirectAttributes.addFlashAttribute("mensagemSucesso", "Cadastro salvo com sucesso!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("mensagemErro", "Erro ao salvar cadastro: " + e.getMessage());
         }
 
-        return "redirect:/home?segmento=" + segmentoParam;
+        return "redirect:/home";
     }
 
     // 5. Excluir Paciente
     @PostMapping("/deletar-cliente/{id}")
     public String deletarCliente(@PathVariable("id") Long id,
-                                 @RequestParam(name = "segmento", defaultValue = "PSICOLOGIA") String segmentoParam,
+                                 Authentication authentication,
                                  RedirectAttributes redirectAttributes) {
         try {
-            clienteFinalService.deletar(id);
+            Long admId = profissionalService.obterId(authentication.getName());
+            clienteFinalService.deletar(id, admId);
             redirectAttributes.addFlashAttribute("mensagemSucesso", "Paciente/Cliente excluído com sucesso!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("mensagemErro", "Erro ao excluir o registro.");
         }
-        return "redirect:/home?segmento=" + segmentoParam;
+        return "redirect:/home";
     }
 }

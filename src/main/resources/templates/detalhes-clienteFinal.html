@@ -24,6 +24,20 @@
       border-radius: 50%;
       background-color: #0dcaf0;
     }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.5rem;
+      padding: .35rem .65rem;
+      border-radius: 999px;
+      font-size: .75rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .status-ok { color: #75b798; background: rgba(25, 135, 84, .25); border: 1px solid #198754; }
+    .status-pendente { color: #ffda6a; background: rgba(255, 193, 7, .2); border: 1px solid #ffc107; }
+    .status-atrasada { color: #ea868f; background: rgba(220, 53, 69, .2); border: 1px solid #dc3545; }
+    .status-neutro { color: #adb5bd; background: rgba(108, 117, 125, .25); border: 1px solid #6c757d; }
   </style>
 </head>
 <body class="bg-dark text-light">
@@ -32,7 +46,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-body-tertiary border-bottom border-secondary mb-4">
   <div class="container">
     <a class="navbar-brand fw-bold text-info fs-4" href="/home">Psync</a>
-    <span class="badge bg-info bg-opacity-20 text-info border border-info ms-2" th:text="${segmento.descricao}">Psicologia</span>
+    <span class="status-badge ms-2" style="color:#6edff6;background:rgba(13,202,240,.2);border:1px solid #0dcaf0" th:text="${segmento.descricao}">Psicologia</span>
 
     <div class="ms-auto d-flex align-items-center gap-2">
       <a href="/home" class="btn btn-sm btn-outline-secondary">
@@ -57,12 +71,9 @@
         <div>
           <div class="d-flex align-items-center gap-2 flex-wrap">
             <h2 class="h4 fw-bold mb-0" th:text="${cliente.dadosCadastro?.nome}">Ana Beatriz Santos</h2>
-            <span th:if="${statusFinanceiro.name() == 'EM_DIA'}"
-                  class="badge bg-success bg-opacity-20 text-success border border-success">Em Dia</span>
-            <span th:if="${statusFinanceiro.name() == 'PENDENTE'}"
-                  class="badge bg-warning bg-opacity-20 text-warning border border-warning">Pendente</span>
-            <span th:if="${statusFinanceiro.name() == 'ATRASADA'}"
-                  class="badge bg-danger bg-opacity-20 text-danger border border-danger">Atrasada</span>
+            <span th:if="${statusFinanceiro.name() == 'EM_DIA'}" class="status-badge status-ok">Em dia</span>
+            <span th:if="${statusFinanceiro.name() == 'PENDENTE'}" class="status-badge status-pendente">Pendente</span>
+            <span th:if="${statusFinanceiro.name() == 'ATRASADA'}" class="status-badge status-atrasada">Atrasada</span>
           </div>
           <p class="text-secondary mb-0 small mt-1">
             <i class="bi bi-telephone me-1"></i><span th:text="${cliente.dadosCadastro?.telefone}">(83) 99888-7766</span> |
@@ -85,13 +96,15 @@
     <li class="nav-item" role="presentation">
       <button class="nav-link active text-light fw-medium" id="prontuario-tab" data-bs-toggle="tab" data-bs-target="#prontuario" type="button" role="tab">
         <i class="bi bi-journal-medical text-info me-2"></i>
-        <span th:text="${segmento.termoProntuario}">Prontuário / Evoluções</span>
+        <span th:if="${segmento.name() == 'ADVOCACIA'}">Histórico do caso</span>
+        <span th:unless="${segmento.name() == 'ADVOCACIA'}">Prontuário / Evoluções</span>
       </button>
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link text-light fw-medium" id="processos-tab" data-bs-toggle="tab" data-bs-target="#processos" type="button" role="tab">
         <i class="bi bi-folder2-open text-info me-2"></i>
-        <span th:text="${segmento.termoDocumento}">Processos & Documentos</span>
+        <span th:if="${segmento.name() == 'ADVOCACIA'}">Processos & Documentos</span>
+        <span th:unless="${segmento.name() == 'ADVOCACIA'}">Arquivos e Documentos</span>
       </button>
     </li>
     <li class="nav-item" role="presentation">
@@ -115,27 +128,24 @@
         </div>
 
         <div class="timeline ps-2">
-          <!-- Registro Exemplo 1 -->
-          <div class="timeline-item pb-4">
+          <div th:if="${#lists.isEmpty(agendamentos) and #lists.isEmpty(processos)}"
+               class="text-secondary py-3">Nenhum registro de atendimento ou processo encontrado.</div>
+          <div th:each="agendamento, iter : ${agendamentos}" class="timeline-item pb-4">
             <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="fw-bold text-info" th:text="${segmento.termoAtendimento} + ' #04'">Sessão #04</span>
-              <small class="text-secondary">02/10/2026 - 14:00</small>
+              <span class="fw-bold text-info" th:text="${agendamento.titulo}">Atendimento</span>
+              <small class="text-secondary" th:text="${#temporals.format(agendamento.inicio, 'dd/MM/yyyy - HH:mm')}">02/10/2026 - 14:00</small>
             </div>
-            <p class="text-light small mb-2">
-              Apresentou boa evolução em relação ao quadro inicial. Foram discutidas as estratégias para os próximos passos do acompanhamento.
-            </p>
-            <span class="badge bg-secondary bg-opacity-20 text-secondary border border-secondary">Anotação Privada</span>
+            <p class="text-light small mb-2" th:text="${agendamento.observacoes ?: 'Sem observações registradas.'}">Sem observações registradas.</p>
+            <span class="status-badge status-neutro" th:text="${agendamento.status}">Agendado</span>
           </div>
-
-          <!-- Registro Exemplo 2 -->
-          <div class="timeline-item pb-2">
+          <div th:each="processo : ${processos}" class="timeline-item pb-4" th:if="${segmento.name() == 'ADVOCACIA'}">
             <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="fw-bold text-info" th:text="${segmento.termoAtendimento} + ' #03'">Sessão #03</span>
-              <small class="text-secondary">25/09/2026 - 14:00</small>
+              <span class="fw-bold text-info" th:text="|Processo ${processo.numero}|">Processo</span>
+              <small class="text-secondary"
+                     th:text="${processo.ultimaMovimentacao != null ? #temporals.format(processo.ultimaMovimentacao, 'dd/MM/yyyy') : 'Sem movimentação'}">Sem movimentação</small>
             </div>
-            <p class="text-light small mb-2">
-              Alinhamento de expectativas e revisão dos documentos e registros apresentados anteriormente.
-            </p>
+            <p class="text-light small mb-2" th:text="${processo.titulo}">Título do processo</p>
+            <span class="status-badge status-neutro" th:text="${processo.status}">ATIVO</span>
           </div>
         </div>
       </div>
@@ -148,9 +158,7 @@
           <h5 class="fw-bold mb-0 text-info">
             <i class="bi bi-paperclip me-2"></i>Arquivos e Documentos Anexados
           </h5>
-          <button class="btn btn-sm btn-outline-info">
-            <i class="bi bi-upload me-1"></i> Anexar Arquivo
-          </button>
+          <span class="small text-secondary">Visível somente para o profissional</span>
         </div>
 
         <div class="table-responsive">
@@ -165,23 +173,8 @@
             </thead>
             <tbody>
             <tr>
-              <td class="fw-medium">
-                <i class="bi bi-file-earmark-pdf text-danger me-2"></i> Contrato_Prestacao_Servicos.pdf
-              </td>
-              <td><span class="badge bg-secondary bg-opacity-20 text-secondary border border-secondary">Contrato</span></td>
-              <td class="small text-secondary">10/09/2026</td>
-              <td class="text-end">
-                <button class="btn btn-sm btn-outline-light"><i class="bi bi-download"></i></button>
-              </td>
-            </tr>
-            <tr>
-              <td class="fw-medium">
-                <i class="bi bi-file-earmark-text text-info me-2"></i> Ficha_Anamnese_Inicial.pdf
-              </td>
-              <td><span class="badge bg-secondary bg-opacity-20 text-secondary border border-secondary">Prontuário</span></td>
-              <td class="small text-secondary">12/09/2026</td>
-              <td class="text-end">
-                <button class="btn btn-sm btn-outline-light"><i class="bi bi-download"></i></button>
+              <td colspan="4" class="text-center text-secondary py-4">
+                Nenhum anexo disponível. O compartilhamento com o cliente final está desativado.
               </td>
             </tr>
             </tbody>
@@ -204,7 +197,7 @@
 
         <form id="novaMensalidade" class="row g-2 collapse mb-4"
               th:action="@{/clientes/{id}/mensalidades(id=${cliente.id})}" method="post">
-          <input type="hidden" name="segmento" th:value="${segmento}">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
           <div class="col-md-4">
             <label class="form-label" for="dataVencimento">Vencimento</label>
             <input id="dataVencimento" name="dataVencimento" type="date" class="form-control" required>
@@ -238,23 +231,23 @@
               <td th:text="|Mensalidade ${#temporals.format(mensalidade.dataVencimento, 'MM/yyyy')}|">Mensalidade Outubro/2026</td>
               <td class="fw-medium" th:text="${#numbers.formatCurrency(mensalidade.valor)}">R$ 180,00</td>
               <td>
-                <span th:if="${mensalidade.status.name() == 'PAGO'}" class="badge bg-success bg-opacity-20 text-success border border-success">Pago</span>
-                <span th:if="${mensalidade.status.name() == 'PENDENTE' and mensalidade.dataVencimento >= T(java.time.LocalDate).now()}" class="badge bg-warning bg-opacity-20 text-warning border border-warning">Pendente</span>
-                <span th:if="${mensalidade.status.name() == 'PENDENTE' and mensalidade.dataVencimento < T(java.time.LocalDate).now()}" class="badge bg-danger bg-opacity-20 text-danger border border-danger">Atrasada</span>
-                <span th:if="${mensalidade.status.name() == 'CANCELADO'}" class="badge bg-secondary">Cancelada</span>
+                <span th:if="${mensalidade.status.name() == 'PAGO'}" class="status-badge status-ok">Pago</span>
+                <span th:if="${mensalidade.status.name() == 'PENDENTE' and mensalidade.dataVencimento >= T(java.time.LocalDate).now()}" class="status-badge status-pendente">Pendente</span>
+                <span th:if="${mensalidade.status.name() == 'PENDENTE' and mensalidade.dataVencimento < T(java.time.LocalDate).now()}" class="status-badge status-atrasada">Atrasada</span>
+                <span th:if="${mensalidade.status.name() == 'CANCELADO'}" class="status-badge status-neutro">Cancelada</span>
               </td>
               <td class="text-end">
                 <form th:if="${mensalidade.status.name() == 'PENDENTE'}"
                       th:action="@{/mensalidades/{id}/pagar(id=${mensalidade.id})}" method="post" class="d-inline">
+                  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                   <input type="hidden" name="clienteId" th:value="${cliente.id}">
-                  <input type="hidden" name="segmento" th:value="${segmento}">
                   <button type="submit" class="btn btn-sm btn-outline-success">
                     <i class="bi bi-check-lg me-1"></i> Baixar
                   </button>
                 </form>
                 <form th:action="@{/mensalidades/{id}/deletar(id=${mensalidade.id})}" method="post" class="d-inline">
+                  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                   <input type="hidden" name="clienteId" th:value="${cliente.id}">
-                  <input type="hidden" name="segmento" th:value="${segmento}">
                   <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir">
                     <i class="bi bi-trash"></i>
                   </button>

@@ -10,7 +10,14 @@ public class ClienteFinal {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private String email;
+
+    @Column
+    private String senha;
+
+    @Transient
+    private String senhaAcesso;
 
     @ManyToOne
     @JoinColumn(name = "cliente_adm_id", nullable = false)
@@ -24,6 +31,10 @@ public class ClienteFinal {
     public void setId(Long id) { this.id = id; }
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+    public String getSenha() { return senha; }
+    public void setSenha(String senha) { this.senha = senha; }
+    public String getSenhaAcesso() { return senhaAcesso; }
+    public void setSenhaAcesso(String senhaAcesso) { this.senhaAcesso = senhaAcesso; }
     public ClienteAdm getClienteAdm() { return clienteAdm; }
     public void setClienteAdm(ClienteAdm clienteAdm) { this.clienteAdm = clienteAdm; }
     public DadosCadastro getDadosCadastro() { return dadosCadastro; }

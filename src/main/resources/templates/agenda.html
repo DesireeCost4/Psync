@@ -12,8 +12,8 @@
     <div class="container">
         <a class="navbar-brand fw-bold text-info fs-4" href="/home">Psync</a>
         <div class="ms-auto d-flex gap-2">
-            <a th:href="@{/home(segmento=${segmento})}" class="btn btn-sm btn-outline-secondary">Painel</a>
-            <a th:href="@{/clientes(segmento=${segmento})}" class="btn btn-sm btn-outline-secondary">Clientes</a>
+            <a th:href="@{/home}" class="btn btn-sm btn-outline-secondary">Painel</a>
+            <a th:href="@{/clientes}" class="btn btn-sm btn-outline-secondary">Clientes</a>
         </div>
     </div>
 </nav>
@@ -28,7 +28,6 @@
             <p class="text-secondary mb-0">Consultas e sessões agendadas.</p>
         </div>
         <form th:action="@{/agenda}" method="get" class="d-flex gap-2">
-            <input type="hidden" name="segmento" th:value="${segmento}">
             <input type="date" name="data" class="form-control" th:value="${dataSelecionada}">
             <button class="btn btn-outline-info" type="submit">Filtrar</button>
         </form>
@@ -40,7 +39,7 @@
         </div>
         <div class="card-body">
             <form th:action="@{/agenda}" th:object="${novoAgendamento}" method="post" class="row g-3">
-                <input type="hidden" name="segmento" th:value="${segmento}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <div class="col-12 col-md-4">
                     <label for="clienteId" class="form-label">Cliente</label>
                     <select id="clienteId" name="clienteId" class="form-select" required>
@@ -104,7 +103,7 @@
                     </td>
                     <td class="text-end">
                         <form th:action="@{/agenda/{id}/status(id=${agendamento.id})}" method="post" class="d-inline-flex gap-1">
-                            <input type="hidden" name="segmento" th:value="${segmento}">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                             <select name="status" class="form-select form-select-sm">
                                 <option th:each="status : ${statusAgendamento}" th:value="${status}" th:text="${status}"></option>
                             </select>
@@ -113,7 +112,7 @@
                             </button>
                         </form>
                         <form th:action="@{/agenda/{id}/deletar(id=${agendamento.id})}" method="post" class="d-inline">
-                            <input type="hidden" name="segmento" th:value="${segmento}">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                             <button class="btn btn-sm btn-outline-danger" type="submit" title="Excluir">
                                 <i class="bi bi-trash"></i>
                             </button>
