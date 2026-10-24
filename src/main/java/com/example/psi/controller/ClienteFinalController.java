@@ -3,19 +3,29 @@ package com.example.psi.controller;
 import com.example.psi.model.ClienteAdm;
 import com.example.psi.model.ClienteFinal;
 import com.example.psi.model.DadosCadastro;
+import com.example.psi.model.Mensalidade;
 import com.example.psi.model.SeguimentoTipo;
+import com.example.psi.model.StatusFinanceiro;
+import com.example.psi.repository.StatusFinanceiroProjection;
 import com.example.psi.service.ClienteFinalService;
+import com.example.psi.service.MensalidadeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+import java.util.Objects;
+
 @Controller
 public class ClienteFinalController {
 
     @Autowired
     private ClienteFinalService clienteFinalService;
+
+    @Autowired
+    private MensalidadeService mensalidadeService;
 
     private SeguimentoTipo obterSegmento(String segmentoParam) {
         try {
@@ -39,8 +49,63 @@ public class ClienteFinalController {
 
         model.addAttribute("cliente", cliente);
         model.addAttribute("segmento", segmentoAtivo);
+        model.addAttribute("mensalidades", List.of());
+        model.addAttribute("statusFinanceiro", StatusFinanceiro.EM_DIA);
+        if (cliente.getId() != null) {
+            model.addAttribute("mensalidades",
+                    mensalidadeService.listarPorCliente(cliente.getId(), 1L));
+            StatusFinanceiro statusFinanceiro = mensalidadeService.statusPorClientes(1L).stream()
+                    .filter(status -> Objects.equals(status.getClienteId(), cliente.getId()))
+                    .map(StatusFinanceiroProjection::getStatus)
+                    .map(StatusFinanceiro::valueOf)
+                    .findFirst()
+                    .orElse(StatusFinanceiro.EM_DIA);
+            model.addAttribute("statusFinanceiro", statusFinanceiro);
+        }
 
         return "detalhes-clienteFinal";
+    }
+
+    @PostMapping("/clientes/{clienteId}/mensalidades")
+    public String criarMensalidade(@PathVariable Long clienteId,
+                                   @ModelAttribute Mensalidade mensalidade,
+                                   @RequestParam(name = "segmento", defaultValue = "PSICOLOGIA") String segmentoParam,
+                                   RedirectAttributes redirectAttributes) {
+        try {
+            mensalidadeService.criar(clienteId, 1L, mensalidade);
+            redirectAttributes.addFlashAttribute("mensagemSucesso", "Mensalidade criada com sucesso.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("mensagemErro", e.getMessage());
+        }
+        return "redirect:/detalhes-cliente?id=" + clienteId + "&segmento=" + segmentoParam;
+    }
+
+    @PostMapping("/mensalidades/{id}/pagar")
+    public String pagarMensalidade(@PathVariable Long id,
+                                   @RequestParam Long clienteId,
+                                   @RequestParam(name = "segmento", defaultValue = "PSICOLOGIA") String segmentoParam,
+                                   RedirectAttributes redirectAttributes) {
+        try {
+            mensalidadeService.marcarComoPaga(id, 1L);
+            redirectAttributes.addFlashAttribute("mensagemSucesso", "Mensalidade baixada com sucesso.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("mensagemErro", e.getMessage());
+        }
+        return "redirect:/detalhes-cliente?id=" + clienteId + "&segmento=" + segmentoParam;
+    }
+
+    @PostMapping("/mensalidades/{id}/deletar")
+    public String deletarMensalidade(@PathVariable Long id,
+                                     @RequestParam Long clienteId,
+                                     @RequestParam(name = "segmento", defaultValue = "PSICOLOGIA") String segmentoParam,
+                                     RedirectAttributes redirectAttributes) {
+        try {
+            mensalidadeService.deletar(id, 1L);
+            redirectAttributes.addFlashAttribute("mensagemSucesso", "Mensalidade excluída com sucesso.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("mensagemErro", e.getMessage());
+        }
+        return "redirect:/detalhes-cliente?id=" + clienteId + "&segmento=" + segmentoParam;
     }
 
     // 2. Form de Cadastro Novo

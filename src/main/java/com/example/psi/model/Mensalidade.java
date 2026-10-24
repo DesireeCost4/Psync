@@ -18,7 +18,9 @@ public class Mensalidade {
     @Column(nullable = false)
     private LocalDate dataVencimento;
 
-    private String status = "PENDENTE";
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StatusMensalidade status = StatusMensalidade.PENDENTE;
 
     @ManyToOne
     @JoinColumn(name = "cliente_adm_id")
@@ -34,8 +36,8 @@ public class Mensalidade {
     public void setValor(BigDecimal valor) { this.valor = valor; }
     public LocalDate getDataVencimento() { return dataVencimento; }
     public void setDataVencimento(LocalDate dataVencimento) { this.dataVencimento = dataVencimento; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public StatusMensalidade getStatus() { return status; }
+    public void setStatus(StatusMensalidade status) { this.status = status; }
     public ClienteAdm getClienteAdm() { return clienteAdm; }
     public void setClienteAdm(ClienteAdm clienteAdm) { this.clienteAdm = clienteAdm; }
     public ClienteFinal getClienteFinal() { return clienteFinal; }

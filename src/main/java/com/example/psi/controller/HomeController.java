@@ -2,7 +2,10 @@ package com.example.psi.controller;
 
 import com.example.psi.model.ClienteFinal;
 import com.example.psi.model.SeguimentoTipo;
+import com.example.psi.model.StatusFinanceiro;
+import com.example.psi.repository.StatusFinanceiroProjection;
 import com.example.psi.service.ClienteFinalService;
+import com.example.psi.service.MensalidadeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,12 +13,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class HomeController {
 
     @Autowired
     private ClienteFinalService clienteFinalService;
+
+    @Autowired
+    private MensalidadeService mensalidadeService;
 
     private SeguimentoTipo obterSegmento(String segmentoParam) {
         try {
@@ -52,7 +60,7 @@ public class HomeController {
         // Busca apenas os clientes do ADM 1
         List<ClienteFinal> listaClientes = clienteFinalService.buscarPorFiltros(admLogadoId, null, null, null);
 
-        adicionarDadosDoPainel(model, listaClientes, segmentoAtivo);
+        adicionarDadosDoPainel(model, listaClientes, segmentoAtivo, admLogadoId);
 
         return "home";
     }
@@ -74,7 +82,7 @@ public class HomeController {
                 admLogadoId, nome, cpfCnpj, email
         );
 
-        adicionarDadosDoPainel(model, listaDeClientes, segmentoAtivo);
+        adicionarDadosDoPainel(model, listaDeClientes, segmentoAtivo, admLogadoId);
         model.addAttribute("filtroNome", nome);
         model.addAttribute("filtroCpfCnpj", cpfCnpj);
         model.addAttribute("filtroEmail", email);
@@ -83,12 +91,17 @@ public class HomeController {
     }
 
     private void adicionarDadosDoPainel(Model model, List<ClienteFinal> clientes,
-                                        SeguimentoTipo segmento) {
+                                        SeguimentoTipo segmento, Long admId) {
         model.addAttribute("clientes", clientes);
+        Map<Long, StatusFinanceiro> statusFinanceiro = mensalidadeService.statusPorClientes(admId).stream()
+                .collect(Collectors.toMap(StatusFinanceiroProjection::getClienteId,
+                        status -> StatusFinanceiro.valueOf(status.getStatus())));
+        clientes.forEach(cliente -> statusFinanceiro.putIfAbsent(cliente.getId(), StatusFinanceiro.EM_DIA));
+        model.addAttribute("statusFinanceiro", statusFinanceiro);
         model.addAttribute("segmento", segmento);
         model.addAttribute("totalClientes", clientes.size());
         model.addAttribute("proximosAtendimentos", 0);
-        model.addAttribute("mensalidadesPendentes", "R$ 0,00");
+        model.addAttribute("mensalidadesPendentes", mensalidadeService.totalPendente(admId));
         model.addAttribute("planoNome", "Plano Profissional");
         model.addAttribute("planoVencimento", "15/10/2026");
     }

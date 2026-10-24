@@ -123,7 +123,8 @@
                     </div>
                     <div>
                         <small class="text-secondary d-block">Mensalidades Pendentes</small>
-                        <h3 class="fw-bold mb-0 text-danger" th:text="${mensalidadesPendentes}">R$ 0,00</h3>
+                        <h3 class="fw-bold mb-0 text-danger"
+                            th:text="${#numbers.formatCurrency(mensalidadesPendentes)}">R$ 0,00</h3>
                     </div>
                 </div>
             </div>
@@ -215,9 +216,13 @@
                             (00) 00000-0000
                         </td>
 
-                        <!-- Célula do Status Financeiro corrigida -->
                         <td>
-                            <span class="badge bg-success bg-opacity-20 text-success border border-success">Em Dia</span>
+                            <span th:if="${statusFinanceiro[cliente.id].name() == 'EM_DIA'}"
+                                  class="badge bg-success bg-opacity-20 text-success border border-success">Em Dia</span>
+                            <span th:if="${statusFinanceiro[cliente.id].name() == 'PENDENTE'}"
+                                  class="badge bg-warning bg-opacity-20 text-warning border border-warning">Pendente</span>
+                            <span th:if="${statusFinanceiro[cliente.id].name() == 'ATRASADA'}"
+                                  class="badge bg-danger bg-opacity-20 text-danger border border-danger">Atrasada</span>
                         </td>
 
                         <td class="small">-</td>
